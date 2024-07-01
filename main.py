@@ -1,25 +1,54 @@
 import tkinter as tk
-from tkinter import messagebox
+from intro1 import IntroPage  # Importing the IntroPage class from the intro1 module
+from pcm import PcmPage
 
-# Function to be called when the button is clicked
-def on_button_click():
-    messagebox.showinfo("Information", "Button clicked!")
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__() 
+        self.title("Basic GUI")
+        self.geometry("500x500")
+        self.configure(bg="lightblue")
 
-# Create the main window
-root = tk.Tk()
-root.title("Basic GUI")
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)  
+        container.grid_columnconfigure(0, weight=1)
 
-# Set the window size
-root.geometry("300x200")
+        self.frames = {}  
 
-# Create a label widget
-label = tk.Label(root, text="Welcome to the Basic GUI")
-label.pack(pady=10)
+        for F in (MainPage, IntroPage, PcmPage):
+            page_name = F.__name__  
+            frame = F(parent=container, controller=self) 
+            self.frames[page_name] = frame 
+            frame.grid(row=0, column=0, sticky="nsew")  
+
+        self.show_frame("MainPage")  
+
+    def show_frame(self, page_name): 
+        frame = self.frames.get(page_name)
+        if frame: 
+            frame.tkraise() 
+        else:
+            print(f"No such frame: {page_name}")
 
 
-# Create a button widget
-button = tk.Button(root, text="Click Me", command=on_button_click)
-button.pack(pady=10)
 
-# Start the Tkinter event loop
-root.mainloop()
+
+class MainPage(tk.Frame):
+    def __init__(self, parent, controller): 
+        super().__init__(parent)  
+        self.controller = controller
+
+        label = tk.Label(self, text="Let's choose your career")
+        label.pack(pady=10)
+
+        button = tk.Button(self, text="Go Ahead", command=lambda: controller.show_frame("IntroPage"))
+        button.pack(pady=10)
+        button.config(bg="red", fg="black")
+
+
+print(__name__)
+
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()
